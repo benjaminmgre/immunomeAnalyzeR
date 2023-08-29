@@ -1,0 +1,10 @@
+Identifier	Group	Accession
+ST01	patient	ERR1957601_1
+ST02	patient	ERR1957603_1
+ST03	patient	ERR1957604_1
+WT01	control	ERR1957595_1
+WT02	control	ERR1957596_1
+WT03	control	ERR1957600_1
+WT04	patient	ERR1957602_1
+WT05	patient	ERR1957605_1
+WT06	patient	ERR1957605_2

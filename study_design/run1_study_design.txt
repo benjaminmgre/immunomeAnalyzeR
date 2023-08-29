@@ -1,0 +1,11 @@
+Identifier	Group
+AM25	patient
+AM26	patient
+AM30	patient
+AM31	patient
+WT01	control
+WT02	control
+WT03	control
+WT04	control
+WT05	control
+WT06	control

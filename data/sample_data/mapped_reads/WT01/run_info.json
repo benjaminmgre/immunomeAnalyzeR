@@ -1,0 +1,13 @@
+{
+	"n_targets": 207249,
+	"n_bootstraps": 0,
+	"n_processed": 53368605,
+	"n_pseudoaligned": 49442882,
+	"n_unique": 5062961,
+	"p_pseudoaligned": 92.6,
+	"p_unique": 9.5,
+	"kallisto_version": "0.44.0",
+	"index_version": 10,
+	"start_time": "Mon Aug 14 11:06:05 2023",
+	"call": "kallisto quant -i ./data/reference/Homo_sapiens.GRCh38.cdna.all.index -o ./data/E-MTAB-5735/mapped_reads/ERR1957595_1_mapped --single -l 75 -s 30 -t 8 ./data/E-MTAB-5735/fastq/ERR1957595_1.fastq.gz"
+}
