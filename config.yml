@@ -1,0 +1,10 @@
+default:
+  study_design_file: "data/E-MTAB-5735/study_design.txt"
+  treatment_name: "patient"
+  data_dir: "data/E-MTAB-5735/mapped_reads"
+  gene_sets: "data/gene_sets/GeneSets_August10_2023.csv"
+  cell_sets: "data/gene_sets/CellType_Signatures.csv"
+  visualize_control_samples: TRUE
+  generate_cell_plots: TRUE
+  generate_bar_plot: TRUE
+  generate_spider_plot: TRUE
