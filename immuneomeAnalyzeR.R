@@ -37,19 +37,20 @@ print("Last updated: May 12th, 2025")
 renv::checkout()
 
 # Import packages ----
-library(ensembldb)
-library(EnsDb.Hsapiens.v86)
-library(config)
-library(tidyverse)
-library(tximport)
-library(edgeR)
-library(cowplot)
-library(matrixStats)
-library(scales)
-library(fmsb)
+packages <- c("tidyverse", "config", "ensembldb", "EnsDb.Hsapiens.v86", 
+              "tximport", "edgeR", "cowplot", "matrixStats", "scales", "fmsb")
+
+for (p in packages) {
+  suppressPackageStartupMessages(
+    library(p, character.only = TRUE, quietly = TRUE, warn.conflicts = FALSE)
+  )
+}
 
 # Config ----
-Sys.setenv(R_CONFIG_ACTIVE = "production")
+args <- commandArgs(trailingOnly = TRUE)
+mode <- args[1]
+print(paste("Running with", mode, "configuration settings."))
+Sys.setenv(R_CONFIG_ACTIVE = mode)
 config <- config::get()
 
 # Create output directory if needed
