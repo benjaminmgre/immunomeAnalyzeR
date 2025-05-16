@@ -85,11 +85,13 @@ Txi_gene <- tximport(paths,
 )
 
 # CPM normalization and filtering, generating composition plots ----
+dge <- DGEList(Txi_gene$abundance, group = targets$Group)
+keep <- filterByExpr(dge)
+dge <- dge[keep, , keep.lib.sizes = FALSE]
 
-# Non-filtered, non-normalized
-myDGEList <- DGEList(Txi_gene$counts)
-cpm <- cpm(myDGEList)
-log2.cpm <- cpm(myDGEList, log=TRUE)
+dge <- calcNormFactors(dge)
+
+log2.cpm <- cpm(dge, log = TRUE, prior.count = 1)
 
 log2.cpm.df <- as_tibble(log2.cpm, rownames="gene_id")
 colnames(log2.cpm.df) <- c("gene_id", sample.ids)
@@ -108,59 +110,7 @@ composition.p1 <- ggplot(log2.cpm.df.pivot) +
                show.legend=FALSE) +
   labs(y="log2 expression", x="Sample",
        title="Log2 Counts per Million (CPM)",
-       subtitle="unfiltered, non-normalized",
-  ) +
-  theme_bw()
-
-# Filtered, non-normalized
-keepers <- rowSums(cpm>1)>=2
-myDGEList.filtered <- myDGEList[keepers,]
-
-log2.cpm.filtered <- cpm(myDGEList.filtered, log=TRUE)
-log2.cpm.filtered.df <- as_tibble(log2.cpm.filtered, rownames='gene_id')
-colnames(log2.cpm.filtered.df) <- c('gene_id', sample.ids)
-log2.cpm.filtered.df.pivot <- pivot_longer(log2.cpm.filtered.df,
-                                           cols=sample.ids,
-                                           names_to='sample',
-                                           values_to='expression')
-
-composition.p2 <- ggplot(log2.cpm.filtered.df.pivot) +
-  aes(x=sample, y=expression, fill=sample) +
-  geom_violin(trim=FALSE, show.legend=FALSE) +
-  stat_summary(fun="median",
-               geom="point",
-               shape=95,
-               size=10,
-               color="black",
-               show.legend=FALSE) +
-  labs(y="log2 expression", x="Sample",
-       title="Log2 Counts per Million (CPM)",
-       subtitle="Filtered, non-normalized",
-  ) +
-  theme_bw()
-
-# Filtered, normalized
-myDGEList.norm <- calcNormFactors(myDGEList.filtered, method="TMM")
-log2.cpm.norm <- cpm(myDGEList.norm, log=TRUE)
-log2.cpm.norm.df <- as_tibble(log2.cpm.norm, rownames="gene_id")
-colnames(log2.cpm.norm.df) <- c("gene_id", sample.ids)
-log2.cpm.norm.df.pivot <- pivot_longer(log2.cpm.norm.df,
-                                       cols=sample.ids,
-                                       names_to = "sample",
-                                       values_to = "expression")
-
-composition.p3 <- ggplot(log2.cpm.norm.df.pivot) +
-  aes(x=sample, y=expression, fill=sample) +
-  geom_violin(trim=FALSE, show.legend=FALSE) +
-  stat_summary(fun="median",
-               geom="point",
-               shape=95,
-               size=10,
-               color="black",
-               show.legend=FALSE) +
-  labs(y="log2 expression", x="Sample",
-       title="Log2 Counts per Million (CPM)",
-       subtitle="Normalized",
+       subtitle="Filtered, TMM Normalized, CPM Normalized, and Log2 Transformed",
   ) +
   theme_bw()
 
@@ -172,10 +122,11 @@ if (!dir.exists("generated/composition_plots/")) {
 }
 
 png(comp.plot.title, width=700, height=500)
-plot_grid(composition.p1, composition.p2, composition.p3, labels=c('A', 'B', 'C'), label_size=12) 
+plot(composition.p1)
 dev.off()
 
 # Calculate scores ----
+log2.cpm.norm.df <- log2.cpm.df
 
 # Gene sets
 gene_sets <- read_csv(config$gene_sets, show_col_types = FALSE)
