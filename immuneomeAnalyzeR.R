@@ -49,7 +49,7 @@ library(scales)
 library(fmsb)
 
 # Config ----
-Sys.setenv(R_CONFIG_ACTIVE = "default")
+Sys.setenv(R_CONFIG_ACTIVE = "production")
 config <- config::get()
 
 # Create output directory if needed
