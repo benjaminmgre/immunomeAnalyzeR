@@ -79,14 +79,15 @@ Tx <- dplyr::select(Tx, "target_id", "gene_name")
 # Import the Kallisto results
 # Ignore Tx Version and Ignore After Bar to correctly summarize to gene level
 # Use browseVignettes("tximport") for help
-Txi_gene <- tximport(paths, 
+print("Loading abundances from Kallisto")
+Txi_gene <- suppressMessages(tximport(paths, 
                      type="kallisto", 
                      tx2gene=Tx, 
                      txOut=FALSE, 
                      countsFromAbundance = "lengthScaledTPM", 
                      ignoreTxVersion = TRUE,
                      ignoreAfterBar = TRUE,
-)
+))
 
 # CPM normalization and filtering, generating composition plots ----
 dge.unmodified <- DGEList(Txi_gene$abundance, group = targets$Group)
@@ -97,6 +98,7 @@ dge.filtered <- dge.unmodified[keep, , keep.lib.sizes = FALSE]
 dge.normalized <- calcNormFactors(dge.filtered, method = "TMM")
 
 log2.cpm <- cpm(dge.normalized, log = TRUE, prior.count = 1, normalized.lib.sizes = TRUE)
+log2.cpm.df <- as_tibble(log2.cpm, rownames="gene_id")
 
 # Prepare unmodified abundances for plotting
 plot.counts <- as_tibble(dge.filtered$counts)
@@ -108,7 +110,6 @@ plot.counts.pivot <- pivot_longer(plot.counts,
                                   values_to = "expression")
 
 # Prepare filtered, transformed, normalized for plotting
-log2.cpm.df <- as_tibble(log2.cpm, rownames="gene_id")
 colnames(log2.cpm.df) <- c("gene_id", sample.ids)
 log2.cpm.df.pivot <- pivot_longer(log2.cpm.df, 
                                   cols=sample.ids,
@@ -142,9 +143,6 @@ plot_grid(composition.p1, composition.p2, labels=c('A', 'B'), label_size = 12)
 dev.off()
 
 # Calculate scores ----
-log2.cpm.norm.df <- log2.cpm.df
-
-# Gene sets
 gene_sets <- read_csv(config$gene_sets, show_col_types = FALSE)
 
 pathway.columns <- c("pathway_name", sample.ids)
@@ -156,7 +154,7 @@ for (set.name in colnames(gene_sets)) {
   gene.set <- gene_sets[,set.name]
   gene.set <- gene.set[!is.na(gene.set)]
   
-  expression.df <- log2.cpm.norm.df %>%
+  expression.df <- log2.cpm.df %>%
     dplyr::filter(gene_id %in% gene.set)
   
   genes <- expression.df$gene_id
@@ -185,12 +183,11 @@ cell.pathway.columns <- c("pathway_name", sample.ids)
 cell.pathway.scores <- data.frame(matrix(nrow=0, ncol=length(cell.pathway.columns)))
 colnames(cell.pathway.scores) <- cell.pathway.columns
 
-
 for (set.name in colnames(cell_sets)) {
   gene.set <- cell_sets[,set.name]
   gene.set <- gene.set[!is.na(gene.set)]
   
-  expression.df <- log2.cpm.norm.df %>%
+  expression.df <- log2.cpm.df %>%
     dplyr::filter(gene_id %in% gene.set)
   
   genes <- expression.df$gene_id
@@ -253,10 +250,10 @@ immune.barplot <- function(data, id=NULL) {
     labs(y="Expression z-score", x="Pathway", title=paste(id, "Immune Pathway Analysis", sep=" ")) +
     coord_flip()
   
-  print(p)
+  invisible(print(p))
   
   img.path <- immune.png(id, "Barplot")
-  ggsave(img.path)
+  suppressMessages(invisible(ggsave(img.path, plot = p)))
 }
 
 # SPIDERPLOT FUNCTION ----
@@ -292,24 +289,23 @@ immune.spiderplot <- function(data, id=NULL) {
   #            caxislabels = c(-6, -4, -2, 0, 2, 4, 6),
   #            title=paste(id, "Immune Pathway Analysis", sep=" "))
   # Grey area OFF
-  p <- radarchart(data.transpose,
-                  cglty=1,
-                  cglcol = 'black',
-                  axislabcol = 'blue',
-                  pcol='red',
-                  plty = 1,
-                  pty=16,
-                  seg=6,
-                  axistype = 1,
-                  caxislabels = c(-6, -4, -2, 0, 2, 4, 6),
-                  title=paste(id, "Immune Pathway Analysis", sep=" "))
-  
-  
-  print(p)
+  invisible(radarchart(data.transpose,
+              cglty=1,
+              cglcol = 'black',
+              axislabcol = 'blue',
+              pcol='red',
+              plty = 1,
+              pty=16,
+              seg=6,
+              axistype = 1,
+              caxislabels = c(-6, -4, -2, 0, 2, 4, 6),
+              title=paste(id, "Immune Pathway Analysis", sep=" ")))
+
   dev.off()
 }
 
 # Plotting loop ----
+print("Generating Plots")
 for (sample in sample.ids) {
   if (sample %in% patient.ids | config$visualize_control_samples) {
     sample.data <- pathway.scores[, c("pathway_name", sample)]
@@ -324,10 +320,12 @@ for (sample in sample.ids) {
     if (config$generate_cell_plots) {
       cell.data <- cell.pathway.scores[, c("pathway_name", sample)]
       if (config$generate_bar_plot) {
-        immune.barplot(cell.data, id = paste(sample, "Cell Type", sep=' '))
+        immune.barplot(cell.data, 
+                                 id = paste(sample, "Cell Type", sep=' '))
       }
       if (config$generate_spider_plot) {
-        immune.spiderplot(cell.data, id = paste(sample, "Cell Type", sep=' '))
+        immune.spiderplot(cell.data, 
+                                    id = paste(sample, "Cell Type", sep=' '))
       }
     }
   }
