@@ -1,0 +1,4 @@
+Identifier	Group
+ControlExample1	control
+ControlExample2	control
+SamplePatient1	patient

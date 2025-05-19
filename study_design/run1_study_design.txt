@@ -1,0 +1,16 @@
+Identifier	Group
+AM25	patient
+AM26	patient
+AM30	patient
+AM31	patient
+SAM53	control
+SAM54	control
+SAM55	control
+SAM56	control
+SAM57	control
+SAM58	control
+SAM59	control
+SAM60	control
+SAM61	control
+SAM62	control
+SAM63	control
