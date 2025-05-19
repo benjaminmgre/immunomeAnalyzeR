@@ -34,7 +34,7 @@ print("Created by Benjamin Green")
 print("Last updated: May 12th, 2025")
 
 # Ensure correct environment is loaded
-renv::checkout()
+source("renv/activate.R")
 
 # Import packages ----
 packages <- c("tidyverse", "config", "ensembldb", "EnsDb.Hsapiens.v86", 
@@ -49,7 +49,8 @@ for (p in packages) {
 # Config ----
 args <- commandArgs(trailingOnly = TRUE)
 mode <- args[1]
-print(paste("Running with", mode, "configuration settings."))
+mode <- "production" # DEBUG
+print(paste0("Running with '", mode, "' configuration settings."))
 Sys.setenv(R_CONFIG_ACTIVE = mode)
 config <- config::get()
 
@@ -61,6 +62,8 @@ if (!dir.exists("./generated/")) {
 # Import and read Kallisto results ----
 targets <- read.table(config$study_design_file, sep = '\t', header = TRUE)
 sample.ids <- targets$Identifier
+
+# patients with condition, controls are 'normal'
 patient.ids <- subset(targets, Group == config$treatment_name)$Identifier
 control.ids <- subset(targets, Group != config$treatment_name)$Identifier
 paths <- file.path(config$data_dir, targets$Identifier, "abundance.tsv")
@@ -86,20 +89,32 @@ Txi_gene <- tximport(paths,
 )
 
 # CPM normalization and filtering, generating composition plots ----
-dge <- DGEList(Txi_gene$abundance, group = targets$Group)
-keep <- filterByExpr(dge)
-dge <- dge[keep, , keep.lib.sizes = FALSE]
+dge.unmodified <- DGEList(Txi_gene$abundance, group = targets$Group)
 
-dge <- calcNormFactors(dge)
+keep <- filterByExpr(dge.unmodified)
+dge.filtered <- dge.unmodified[keep, , keep.lib.sizes = FALSE]
 
-log2.cpm <- cpm(dge, log = TRUE, prior.count = 1)
+dge.normalized <- calcNormFactors(dge.filtered, method = "TMM")
 
+log2.cpm <- cpm(dge.normalized, log = TRUE, prior.count = 1, normalized.lib.sizes = TRUE)
+
+# Prepare unmodified abundances for plotting
+plot.counts <- as_tibble(dge.filtered$counts)
+colnames(plot.counts) <- sample.ids
+plot.counts$gene_id <- rownames(dge.filtered$counts)
+plot.counts.pivot <- pivot_longer(plot.counts,
+                                  cols=sample.ids,
+                                  names_to = "sample",
+                                  values_to = "expression")
+
+# Prepare filtered, transformed, normalized for plotting
 log2.cpm.df <- as_tibble(log2.cpm, rownames="gene_id")
 colnames(log2.cpm.df) <- c("gene_id", sample.ids)
 log2.cpm.df.pivot <- pivot_longer(log2.cpm.df, 
                                   cols=sample.ids,
                                   names_to = "sample",
-                                  values_to = 'expression')
+                                  values_to = "expression")
+
 composition.p1 <- ggplot(log2.cpm.df.pivot) +
   aes(x=sample, y=expression, fill=sample) +
   geom_violin(trim=FALSE, show.legend=FALSE) +
@@ -110,8 +125,7 @@ composition.p1 <- ggplot(log2.cpm.df.pivot) +
                color="black",
                show.legend=FALSE) +
   labs(y="log2 expression", x="Sample",
-       title="Log2 Counts per Million (CPM)",
-       subtitle="Filtered, TMM Normalized, CPM Normalized, and Log2 Transformed",
+       title="Filtered, TMM Normalized, CPM Normalized, and Log2 Transformed Expression"
   ) +
   theme_bw()
 
@@ -123,7 +137,8 @@ if (!dir.exists("generated/composition_plots/")) {
 }
 
 png(comp.plot.title, width=700, height=500)
-plot(composition.p1)
+plot_grid(composition.p1, composition.p2, labels=c('A', 'B'), label_size = 12)
+# plot(composition.p1)
 dev.off()
 
 # Calculate scores ----

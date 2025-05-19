@@ -8,3 +8,12 @@ default:
   generate_cell_plots: TRUE
   generate_bar_plot: TRUE
   generate_spider_plot: TRUE
+production:
+  study_design_file: "study_design/run1_study_design.txt"
+  data_dir: "data/run1"
+  gene_sets: "data/gene_sets/GeneSets_August28_2023.csv"
+  cell_sets: "data/gene_sets/CellType_Signatures.csv"
+  visualize_control_samples: TRUE
+  generate_cell_plots: TRUE
+  generate_bar_plot: TRUE
+  generate_spider_plot: TRUE
