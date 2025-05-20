@@ -70,5 +70,7 @@ Rscript immunomeAnalyzeR.R <CONFIG_SETTING>
 ```
 Where <CONFIG_SETTING> is the name of the settings group to use (ex. 'default' or 'production').
 
+Note: Please be patient running for the first time, the required R libraries will need some time to download and install.
+
 ### Questions?
 Email me at benmckgreen@gmail.com
