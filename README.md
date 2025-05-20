@@ -42,7 +42,7 @@ The config.yml file must be configured prior to running the script.
 
 * 'treatment_name': The name of the group of interest in the study design
    file. Usually this is 'patient'. The script will generate a plot for each
-   treatment sample.
+   treatment sample. The control group is defined as any sample in the study design file that is not a treatment sample.
 
 * 'data_dir': Path to the directory with Kallisto results. The directory must
   be structured as the raw Kallisto output: one sub-directory for each
