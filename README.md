@@ -1,8 +1,12 @@
-# Visualize differential gene module expression.
+# Visualize differential gene module expression
 
-Requires samples to be pre-processed using Kallisto pseudo-aligner.
+This R script uses pre-defined gene modules (groups of genes) and compares the expressions between individual 'treatment' or 'patient' samples and a control population. It automatically generates gene-module expression plots to visualize the expression of each module compared to the control population. Gene modules with abnormally high or low expression can be identified.
+
+The gene modules in the 'data' folder were created via a literature review conducted by myself and supervised by Dr. Ashish Marwaha, MD PhD, at the University of Calgary. You are able to customize the gene modules and add/remove modules as you wish.
 
 ## Preprocessing (before running ImmunomeAnalyzeR)
+
+Samples are required to be pre-processed using Kallisto pseudo-aligner.
 
 To create the Kallisto index:
 ```
