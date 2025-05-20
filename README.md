@@ -2,6 +2,15 @@
 
 This R script uses pre-defined gene modules (groups of genes) and compares the expressions between individual 'treatment' or 'patient' samples and a control population. It automatically generates gene-module expression plots to visualize the expression of each module compared to the control population. Gene modules with abnormally high or low expression can be identified.
 
+The basic methodology:
+1) Import transcript abundances from Kallisto
+2) Convert transcripts to genes
+3) Normalize and transform the abundances (TMM normalization, CPM normalization, and Log2 transformation)
+4) Calculate the mean and standard deviation of every gene in the 'control' group
+5) Calculate the expression z-score for each gene in every sample in the 'treatment' group
+6) Calculate gene module expression by by averaging the z-scores for every gene in the module
+7) Visualize results
+
 The gene modules in the 'data' folder were created via a literature review conducted by myself and supervised by Dr. Ashish Marwaha, MD PhD, at the University of Calgary. You are able to customize the gene modules and add/remove modules as you wish.
 
 ## Preprocessing (before running ImmunomeAnalyzeR)
@@ -75,6 +84,8 @@ Rscript immunomeAnalyzeR.R <CONFIG_SETTING>
 Where <CONFIG_SETTING> is the name of the settings group to use (ex. 'default' or 'production').
 
 Note: Please be patient running for the first time, the required R libraries will need some time to download and install.
+
+### Example output
 
 ### Questions?
 Email me at benmckgreen@gmail.com
