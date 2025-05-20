@@ -62,3 +62,13 @@ Generates gene module expression plots for every treatment (and control)
 sample for every gene module in the 'generated' directory. Also, a
 composition plot is generated that visualizes the log2 expression composition
 for each sample.
+
+### To run
+Using R version 4.5 or later, navigate to the ImmunomeAnalyzeR directory and run the following command:
+```
+Rscript immunomeAnalyzeR.R <CONFIG_SETTING>
+```
+Where <CONFIG_SETTING> is the name of the settings group to use (ex. 'default' or 'production').
+
+### Questions?
+Email me at benmckgreen@gmail.com
