@@ -86,9 +86,13 @@ Where <CONFIG_SETTING> is the name of the settings group to use (ex. 'default' o
 Note: Please be patient running for the first time, the required R libraries will need some time to download and install.
 
 ### Example output
+_Example 1: Barplot visualization of key cytokine modules from patient with Interferonopathy_
 ![Example 1: Barplot visualization of key cytokine modules from patient with Interferonopathy](images/exampleImage1.png)
+_Example 2: Alternative spiderplot visualization of example 1_
 ![Example 2: Alternative spiderplot visualization of example 1](images/exampleImage2.png)
+_Example 3: Control sample barplot visualization of key cytokine modules_
 ![Example 3: Control sample barplot visualization of key cytokine modules](images/exampleImage3.png)
+_Example 4: Barplot visualization of immune cell modules from patient with Interferonopathy_
 ![Example 4: Barplot visualization of immune cell modules from patient with Interferonopathy](images/exampleImage4.png)
 
 ### Questions?
